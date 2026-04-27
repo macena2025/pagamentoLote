@@ -1,0 +1,1260 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PayLote | Pagamento de Contas em Lote</title>
+  <style>
+    :root {
+      --bg: #f6f8fc;
+      --card: #ffffff;
+      --text: #0f172a;
+      --muted: #64748b;
+      --line: #e2e8f0;
+      --blue: #0f6fff;
+      --green: #16a34a;
+      --green-soft: #dcfce7;
+      --orange: #f59e0b;
+      --orange-soft: #fff7ed;
+      --red: #ef4444;
+      --red-soft: #fee2e2;
+      --purple: #7c3aed;
+      --purple-soft: #ede9fe;
+      --shadow: 0 16px 35px rgba(15, 23, 42, .06);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg);
+      color: var(--text);
+      display: flex;
+    }
+
+    .sidebar {
+      width: 250px;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #04142f, #082a60);
+      color: #fff;
+      padding: 24px 14px;
+      position: fixed;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 23px;
+      font-weight: 850;
+      margin: 0 10px 34px;
+    }
+
+    .brand-icon {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #00b7ff, #2563eb);
+      display: grid;
+      place-items: center;
+      box-shadow: 0 10px 22px rgba(37, 99, 235, .35);
+    }
+
+    .brand-icon::before {
+      content: "";
+      width: 16px;
+      height: 16px;
+      border-radius: 5px;
+      background: rgba(255,255,255,.9);
+      transform: rotate(45deg);
+    }
+
+    .nav-list {
+      display: grid;
+      gap: 8px;
+    }
+
+    .nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 13px 14px;
+      border-radius: 10px;
+      color: #e2e8f0;
+      font-size: 14px;
+      font-weight: 650;
+      cursor: pointer;
+      transition: .2s;
+    }
+
+    .nav-item:hover,
+    .nav-item.active {
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(15, 111, 255, .28);
+    }
+
+    .nav-icon {
+      width: 20px;
+      text-align: center;
+    }
+
+    .company-card,
+    .balance-card {
+      margin: 8px 0;
+      background: rgba(255,255,255,.08);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 12px;
+      padding: 16px;
+    }
+
+    .company-card strong,
+    .balance-card strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 6px;
+    }
+
+    .company-card span,
+    .balance-card span {
+      color: #cbd5e1;
+      font-size: 13px;
+    }
+
+    .balance-value {
+      color: #22c55e;
+      font-size: 18px;
+      font-weight: 850;
+      margin-top: 12px;
+    }
+
+    .main {
+      margin-left: 250px;
+      width: calc(100% - 250px);
+      padding: 24px 34px 130px;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 34px;
+      gap: 18px;
+    }
+
+    .breadcrumb {
+      font-size: 14px;
+      color: var(--muted);
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+    }
+
+    .breadcrumb strong {
+      color: var(--blue);
+    }
+
+    .user-area {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+    }
+
+    .bell {
+      position: relative;
+      font-size: 21px;
+    }
+
+    .bell-badge {
+      position: absolute;
+      right: -7px;
+      top: -8px;
+      width: 18px;
+      height: 18px;
+      background: var(--blue);
+      color: #fff;
+      font-size: 11px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: #5b3df5;
+      color: #fff;
+      display: grid;
+      place-items: center;
+      font-weight: 850;
+    }
+
+    .role strong {
+      display: block;
+      font-size: 14px;
+    }
+
+    .role span {
+      font-size: 13px;
+      color: var(--muted);
+    }
+
+    .page-head {
+      display: grid;
+      grid-template-columns: 1fr 420px;
+      gap: 22px;
+      align-items: start;
+      margin-bottom: 24px;
+    }
+
+    .page-title h1 {
+      font-size: 28px;
+      letter-spacing: -.6px;
+      display: flex;
+      align-items: center;
+      gap: 14px;
+      margin-bottom: 14px;
+      flex-wrap: wrap;
+    }
+
+    .status-pill {
+      padding: 8px 14px;
+      border-radius: 999px;
+      background: var(--green-soft);
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 850;
+    }
+
+    .created-by {
+      color: #475569;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+
+    .lot-info,
+    .table-card,
+    .metric-card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+
+    .lot-info {
+      padding: 18px 20px;
+    }
+
+    .lot-info h3 {
+      font-size: 15px;
+      margin-bottom: 14px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      color: #475569;
+      font-size: 14px;
+      margin: 10px 0;
+    }
+
+    .info-row strong {
+      color: #1e293b;
+    }
+
+    .metrics {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .metric-card {
+      padding: 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      min-height: 112px;
+    }
+
+    .metric-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-size: 22px;
+      flex: 0 0 auto;
+    }
+
+    .metric-icon.blue { background: var(--blue); }
+    .metric-icon.green { background: var(--green); }
+    .metric-icon.orange { background: var(--orange); }
+    .metric-icon.red { background: var(--red); }
+    .metric-icon.purple { background: var(--purple); }
+
+    .metric-label {
+      color: #334155;
+      font-size: 13px;
+      margin-bottom: 6px;
+    }
+
+    .metric-value {
+      font-size: 21px;
+      font-weight: 900;
+      letter-spacing: -.3px;
+    }
+
+    .metric-small {
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 4px;
+    }
+
+    .table-card {
+      overflow: hidden;
+    }
+
+    .table-toolbar {
+      padding: 0 20px;
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+
+    .tabs {
+      display: flex;
+      gap: 24px;
+      flex-wrap: wrap;
+    }
+
+    .tab {
+      padding: 20px 0 17px;
+      font-size: 14px;
+      font-weight: 800;
+      color: #334155;
+      border-bottom: 3px solid transparent;
+      cursor: pointer;
+    }
+
+    .tab.active {
+      color: var(--blue);
+      border-color: var(--blue);
+    }
+
+    .search-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .search-box {
+      width: 380px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 11px 14px;
+      background: #fff;
+    }
+
+    .search-box input {
+      border: 0;
+      outline: none;
+      width: 100%;
+      font-size: 14px;
+    }
+
+    .form-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 16px;
+      margin-bottom: 18px;
+    }
+
+    .form-grid.two {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .form-field span {
+      display: block;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 800;
+      margin-bottom: 8px;
+    }
+
+    .form-field input,
+    .form-field select,
+    .form-field textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 13px 14px;
+      outline: none;
+      font-size: 14px;
+      background: #fff;
+      color: var(--text);
+    }
+
+    .form-field textarea {
+      resize: vertical;
+      min-height: 86px;
+    }
+
+    .form-field input:focus,
+    .form-field select:focus,
+    .form-field textarea:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(15, 111, 255, .08);
+    }
+
+    button {
+      border: 0;
+      border-radius: 10px;
+      padding: 12px 16px;
+      cursor: pointer;
+      font-weight: 850;
+      transition: .2s;
+      font-size: 14px;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+    }
+
+    .btn-light {
+      background: #fff;
+      border: 1px solid var(--line);
+      color: #334155;
+    }
+
+    .btn-green {
+      background: linear-gradient(135deg, #22c55e, #16a34a);
+      color: #fff;
+      box-shadow: 0 12px 22px rgba(22, 163, 74, .22);
+    }
+
+    .btn-blue {
+      background: var(--blue);
+      color: #fff;
+      box-shadow: 0 12px 22px rgba(15, 111, 255, .2);
+    }
+
+    .selection-line {
+      padding: 14px 20px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      border-bottom: 1px solid var(--line);
+      color: #334155;
+      font-size: 14px;
+      flex-wrap: wrap;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th {
+      text-align: left;
+      padding: 14px 20px;
+      background: #f8fafc;
+      color: #475569;
+      font-size: 12px;
+      font-weight: 850;
+      border-bottom: 1px solid var(--line);
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 15px 20px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: middle;
+      font-size: 14px;
+      color: #172033;
+    }
+
+    tbody tr:hover td {
+      background: #fbfdff;
+    }
+
+    input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--blue);
+      cursor: pointer;
+    }
+
+    .payee strong {
+      display: block;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .payee span,
+    .details {
+      color: #475569;
+      font-size: 13px;
+    }
+
+    .type {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+
+    .badge.pending { background: var(--orange-soft); color: #ea580c; }
+    .badge.alert { background: var(--red-soft); color: #dc2626; }
+    .badge.approved { background: var(--green-soft); color: var(--green); }
+    .badge.scheduled { background: var(--purple-soft); color: var(--purple); }
+
+    .danger {
+      color: #dc2626;
+      font-weight: 800;
+    }
+
+    .muted {
+      color: var(--muted);
+    }
+
+    .dots {
+      font-size: 22px;
+      color: #334155;
+      text-align: right;
+    }
+
+    .bottom-approval {
+      position: fixed;
+      left: 284px;
+      right: 34px;
+      bottom: 24px;
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: 0 18px 45px rgba(15, 23, 42, .14);
+      padding: 18px 22px;
+      display: grid;
+      grid-template-columns: 1.35fr .7fr .7fr .7fr 1.4fr;
+      gap: 18px;
+      align-items: center;
+      z-index: 9;
+    }
+
+    .bottom-title {
+      font-size: 15px;
+      margin-bottom: 8px;
+      font-weight: 850;
+    }
+
+    .bottom-value {
+      font-size: 15px;
+      color: #0f172a;
+      font-weight: 750;
+    }
+
+    .bottom-stat {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .circle {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      display: grid;
+      place-items: center;
+      color: #fff;
+      font-weight: 900;
+      font-size: 18px;
+    }
+
+    .release-area {
+      text-align: center;
+    }
+
+    .release-area button {
+      width: 100%;
+      padding: 15px 18px;
+    }
+
+    .release-note {
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+
+    .toast {
+      position: fixed;
+      right: 34px;
+      top: 82px;
+      background: #0f172a;
+      color: #fff;
+      padding: 13px 16px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 750;
+      opacity: 0;
+      pointer-events: none;
+      transform: translateY(-10px);
+      transition: .25s;
+      z-index: 20;
+      box-shadow: var(--shadow);
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .test-result {
+      margin-top: 16px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      color: #334155;
+      font-size: 13px;
+      line-height: 1.7;
+    }
+
+    @media (max-width: 1200px) {
+      .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .page-head { grid-template-columns: 1fr; }
+      .bottom-approval { grid-template-columns: 1fr 1fr; }
+      .form-grid, .form-grid.two { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 900px) {
+      .sidebar { display: none; }
+      .main { margin-left: 0; width: 100%; padding: 20px 18px 240px; }
+      .topbar { align-items: flex-start; gap: 16px; flex-direction: column; }
+      .metrics, .form-grid, .form-grid.two { grid-template-columns: 1fr; }
+      .search-box { width: 100%; }
+      .search-actions { width: 100%; flex-direction: column; align-items: stretch; }
+      .table-card { overflow-x: auto; }
+      table { min-width: 1100px; }
+      .bottom-approval { left: 18px; right: 18px; grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div>
+      <div class="brand">
+        <div class="brand-icon"></div>
+        <span>PayLote</span>
+      </div>
+
+      <nav class="nav-list">
+        <div class="nav-item" onclick="openMenu('Dashboard', this)"><span class="nav-icon">⌂</span>Dashboard</div>
+        <div class="nav-item" onclick="openMenu('Novo lote', this)"><span class="nav-icon">▣</span>Novo lote</div>
+        <div class="nav-item" onclick="openMenu('Importar arquivo', this)"><span class="nav-icon">⇪</span>Importar arquivo</div>
+        <div class="nav-item" onclick="openMenu('Contas cadastradas', this)"><span class="nav-icon">☷</span>Contas cadastradas</div>
+        <div class="nav-item" onclick="openMenu('Lotes', this)"><span class="nav-icon">▤</span>Lotes</div>
+        <div class="nav-item active" onclick="openApproval(this)"><span class="nav-icon">☑</span>Aprovação</div>
+        <div class="nav-item" onclick="openMenu('Pagamentos', this)"><span class="nav-icon">▱</span>Pagamentos</div>
+        <div class="nav-item" onclick="openMenu('Histórico', this)"><span class="nav-icon">◷</span>Histórico</div>
+        <div class="nav-item" onclick="openMenu('Favorecidos', this)"><span class="nav-icon">♙</span>Favorecidos</div>
+        <div class="nav-item" onclick="openMenu('Relatórios', this)"><span class="nav-icon">▥</span>Relatórios</div>
+        <div class="nav-item" onclick="openMenu('Configurações', this)"><span class="nav-icon">⚙</span>Configurações</div>
+      </nav>
+    </div>
+
+    <div>
+      <div class="company-card">
+        <strong>Empresa Exemplo Ltda</strong>
+        <span>Conta empresarial</span>
+      </div>
+      <div class="balance-card">
+        <span>Saldo disponível</span>
+        <div class="balance-value">R$ 587.430,21</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <div id="approvalScreen">
+      <section class="topbar">
+        <div class="breadcrumb">
+          <strong>Aprovação de lotes</strong>
+          <span>›</span>
+          <span>Lote #20250523-001</span>
+        </div>
+
+        <div class="user-area">
+          <div class="bell">♧<span class="bell-badge">3</span></div>
+          <div class="avatar">GS</div>
+          <div class="role">
+            <strong>Gestor</strong>
+            <span>Gestor financeiro</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="page-head">
+        <div class="page-title">
+          <h1>Aprovação do lote <span class="status-pill">Aguardando aprovação</span></h1>
+          <p class="created-by">Criado por: João Silva (financeiro@empresa.com) em 23/05/2025 às 10:32</p>
+        </div>
+
+        <div class="lot-info">
+          <h3>Informações do lote</h3>
+          <div class="info-row"><span>ID do lote:</span><strong>20250523-001</strong></div>
+          <div class="info-row"><span>Data de criação:</span><strong>23/05/2025 às 10:32</strong></div>
+          <div class="info-row"><span>Total de contas:</span><strong id="infoTotalBills">0</strong></div>
+          <div class="info-row"><span>Total do lote:</span><strong id="infoTotalAmount">R$ 0,00</strong></div>
+        </div>
+      </section>
+
+      <section class="metrics">
+        <div class="metric-card"><div class="metric-icon blue">▤</div><div><div class="metric-label">Total do lote</div><div class="metric-value" id="metricTotalAmount">R$ 0,00</div><div class="metric-small" id="metricTotalBills">0 contas</div></div></div>
+        <div class="metric-card"><div class="metric-icon green">✓</div><div><div class="metric-label">Aprovadas</div><div class="metric-value" id="metricApprovedCount">0</div><div class="metric-small" id="metricApprovedAmount">R$ 0,00</div></div></div>
+        <div class="metric-card"><div class="metric-icon orange">▣</div><div><div class="metric-label">Pendentes</div><div class="metric-value" id="metricPendingCount">0</div><div class="metric-small" id="metricPendingAmount">R$ 0,00</div></div></div>
+        <div class="metric-card"><div class="metric-icon red">!</div><div><div class="metric-label">Com alerta</div><div class="metric-value" id="metricAlertCount">0</div><div class="metric-small" id="metricAlertAmount">R$ 0,00</div></div></div>
+        <div class="metric-card"><div class="metric-icon purple">▦</div><div><div class="metric-label">Agendadas</div><div class="metric-value" id="metricScheduledCount">0</div><div class="metric-small" id="metricScheduledAmount">R$ 0,00</div></div></div>
+      </section>
+
+      <section class="table-card">
+        <div class="table-toolbar">
+          <div class="tabs">
+            <div class="tab active" data-filter="todos" onclick="setFilter('todos')">Todos (<span id="tabAll">0</span>)</div>
+            <div class="tab" data-filter="Pendente" onclick="setFilter('Pendente')">Pendentes (<span id="tabPending">0</span>)</div>
+            <div class="tab" data-filter="Aprovado" onclick="setFilter('Aprovado')">Aprovadas (<span id="tabApproved">0</span>)</div>
+            <div class="tab" data-filter="Alerta" onclick="setFilter('Alerta')">Com alerta (<span id="tabAlert">0</span>)</div>
+          </div>
+
+          <div class="search-actions">
+            <div class="search-box">
+              <span>⌕</span>
+              <input id="searchInput" type="text" placeholder="Buscar por favorecido, CPF/CNPJ, valor..." oninput="renderTable()" />
+            </div>
+            <button class="btn-light" onclick="showToast('Filtros avançados em breve.')">▽ Filtros</button>
+          </div>
+        </div>
+
+        <div class="selection-line">
+          <input type="checkbox" id="selectAll" onchange="toggleAll(this.checked)" />
+          <span>Selecionar todas (<strong id="selectableCount">0</strong>)</span>
+        </div>
+
+        <table>
+          <thead>
+            <tr>
+              <th></th>
+              <th>Favorecido</th>
+              <th>Tipo</th>
+              <th>Detalhes</th>
+              <th>Vencimento</th>
+              <th>Valor</th>
+              <th>Status</th>
+              <th>Situação</th>
+              <th></th>
+            </tr>
+          </thead>
+          <tbody id="paymentsTable"></tbody>
+        </table>
+      </section>
+    </div>
+
+    <div id="dynamicScreen" style="display:none;"></div>
+  </main>
+
+  <section class="bottom-approval" id="bottomApproval">
+    <div>
+      <div class="bottom-title"><span id="selectedCount">0</span> contas selecionadas</div>
+      <div class="bottom-value" id="selectedAmount">R$ 0,00</div>
+    </div>
+
+    <div class="bottom-stat"><div class="circle" style="background: var(--green);">✓</div><div><div class="metric-value" id="bottomApprovedCount">0</div><div class="metric-small">Aprovadas</div><div class="metric-small" id="bottomApprovedAmount">R$ 0,00</div></div></div>
+    <div class="bottom-stat"><div class="circle" style="background: var(--orange);">◷</div><div><div class="metric-value" id="bottomPendingCount">0</div><div class="metric-small">Pendentes</div><div class="metric-small" id="bottomPendingAmount">R$ 0,00</div></div></div>
+    <div class="bottom-stat"><div class="circle" style="background: var(--red);">!</div><div><div class="metric-value" id="bottomAlertCount">0</div><div class="metric-small">Com alerta</div><div class="metric-small" id="bottomAlertAmount">R$ 0,00</div></div></div>
+
+    <div class="release-area">
+      <button class="btn-green" onclick="releaseSelected()">🔒 Liberar contas selecionadas</button>
+      <div class="release-note">Apenas as contas selecionadas serão liberadas para pagamento</div>
+    </div>
+  </section>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    const state = {
+      currentFilter: "todos",
+      payments: [
+        { id: 1, selected: true, payee: "Fornecedora Alfa Ltda", document: "12.345.678/0001-90", type: "Boleto", details: "23793.38128 60000.000012 12000.123456 7 91230000021500", dueDate: "2025-05-28", amount: 2150.00, status: "Pendente", situation: "—", invoice: "NF-1001" },
+        { id: 2, selected: true, payee: "Comercial Beta Ltda", document: "98.765.432/0001-10", type: "PIX", details: "Chave: 98.765.432/0001-10", dueDate: "2025-05-24", amount: 1980.00, status: "Pendente", situation: "—", invoice: "NF-1002" },
+        { id: 3, selected: true, payee: "Impostos e Taxas", document: "Governo Federal", type: "Tributo", details: "DARF 0561", dueDate: "2025-05-25", amount: 3200.00, status: "Alerta", situation: "Vencido", invoice: "Guia-0561" },
+        { id: 4, selected: true, payee: "Fornecedor Gama S.A.", document: "11.222.333/0001-81", type: "Boleto", details: "23793.38128 60000.000013 13000.123456 0 91230000018600", dueDate: "2025-05-30", amount: 1860.00, status: "Pendente", situation: "—", invoice: "NF-1004" },
+        { id: 5, selected: true, payee: "Serviços Delta Ltda", document: "33.444.555/0001-99", type: "PIX", details: "Chave: 33.444.555/0001-99", dueDate: "2025-05-27", amount: 4750.00, status: "Pendente", situation: "—", invoice: "NF-1005" },
+        { id: 6, selected: true, payee: "Fornecedor Épsilon Ltda", document: "66.777.888/0001-22", type: "Boleto", details: "23793.38128 60000.000014 14000.123456 3 91230000032500", dueDate: "2025-06-05", amount: 3250.00, status: "Pendente", situation: "—", invoice: "NF-1006" },
+        { id: 7, selected: false, payee: "Energia Elétrica", document: "Companhia de Energia", type: "Boleto", details: "23793.38128 60000.000015 15000.123456 6 91230000034500", dueDate: "2025-05-20", amount: 1230.00, status: "Alerta", situation: "Vencido", invoice: "Conta-energia" },
+        { id: 8, selected: true, payee: "Cloud Prime Brasil", document: "44.555.666/0001-77", type: "PIX", details: "Chave: financeiro@cloudprime.com.br", dueDate: "2025-06-01", amount: 8900.00, status: "Pendente", situation: "—", invoice: "NF-1008" },
+        { id: 9, selected: true, payee: "Consultoria Norte Ltda", document: "55.666.777/0001-88", type: "TED", details: "Banco 001 | Ag 1234 | CC 998877-6", dueDate: "2025-06-03", amount: 5400.00, status: "Pendente", situation: "—", invoice: "NF-1009" },
+        { id: 10, selected: true, payee: "Internet Fibra Max", document: "77.888.999/0001-00", type: "Boleto", details: "34191.79001 01043.510047 91020.150008 8 12340000065000", dueDate: "2025-05-29", amount: 650.00, status: "Pendente", situation: "—", invoice: "NF-1010" },
+        { id: 11, selected: true, payee: "Software Gestão Pro", document: "88.999.000/0001-11", type: "Boleto", details: "34191.79001 01043.510047 91020.150008 8 12340000399000", dueDate: "2025-06-07", amount: 3990.00, status: "Pendente", situation: "—", invoice: "NF-1011" },
+        { id: 12, selected: true, payee: "Transporte Urbano Ltda", document: "21.321.432/0001-55", type: "PIX", details: "Chave: 21.321.432/0001-55", dueDate: "2025-06-08", amount: 2870.25, status: "Pendente", situation: "—", invoice: "NF-1012" },
+        { id: 13, selected: true, payee: "Limpeza Corporativa", document: "31.431.531/0001-66", type: "TED", details: "Banco 237 | Ag 0987 | CC 123456-1", dueDate: "2025-06-10", amount: 4420.00, status: "Pendente", situation: "—", invoice: "NF-1013" },
+        { id: 14, selected: true, payee: "Marketing Studio", document: "41.541.641/0001-77", type: "PIX", details: "Chave: contato@marketingstudio.com.br", dueDate: "2025-06-11", amount: 6100.00, status: "Pendente", situation: "—", invoice: "NF-1014" },
+        { id: 15, selected: true, payee: "Locação Escritório", document: "51.651.751/0001-88", type: "Boleto", details: "23793.38128 60000.000016 16000.123456 1 91230000485000", dueDate: "2025-06-12", amount: 4850.00, status: "Pendente", situation: "—", invoice: "NF-1015" },
+        { id: 16, selected: true, payee: "Segurança Patrimonial", document: "61.761.861/0001-99", type: "TED", details: "Banco 033 | Ag 4321 | CC 667788-9", dueDate: "2025-06-13", amount: 3160.00, status: "Pendente", situation: "—", invoice: "NF-1016" }
+      ]
+    };
+
+    function money(value) {
+      return Number(value || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+    }
+
+    function dateBR(date) {
+      return new Date(date + "T00:00:00").toLocaleDateString("pt-BR");
+    }
+
+    function sumBy(list) {
+      return list.reduce((total, item) => total + Number(item.amount || 0), 0);
+    }
+
+    function typeIcon(type) {
+      const icons = { Boleto: "▥", PIX: "❖", Tributo: "▥", TED: "↔" };
+      return icons[type] || "▣";
+    }
+
+    function badgeClass(status) {
+      const map = { Pendente: "pending", Alerta: "alert", Aprovado: "approved", Agendado: "scheduled" };
+      return map[status] || "pending";
+    }
+
+    function setActiveMenu(element) {
+      document.querySelectorAll(".nav-item").forEach(item => item.classList.remove("active"));
+      if (element) element.classList.add("active");
+    }
+
+    function screenHeader(title, subtitle) {
+      return `
+        <section class="topbar">
+          <div class="breadcrumb"><strong>${title}</strong><span>›</span><span>PayLote</span></div>
+          <div class="user-area">
+            <div class="bell">♧<span class="bell-badge">3</span></div>
+            <div class="avatar">GS</div>
+            <div class="role"><strong>Gestor</strong><span>Gestor financeiro</span></div>
+          </div>
+        </section>
+        <section class="page-title" style="margin-bottom:22px;">
+          <h1>${title}</h1>
+          <p class="created-by">${subtitle}</p>
+        </section>
+      `;
+    }
+
+    function simpleTable(headers, rows) {
+      return `
+        <table>
+          <thead><tr>${headers.map(header => `<th>${header}</th>`).join("")}</tr></thead>
+          <tbody>${rows.map(row => `<tr>${row.map(cell => `<td>${cell}</td>`).join("")}</tr>`).join("")}</tbody>
+        </table>
+      `;
+    }
+
+    function dashboardHTML() {
+      return `
+        ${screenHeader("Dashboard", "Visão geral dos lotes, pagamentos e alertas financeiros.")}
+        <section class="metrics">
+          <div class="metric-card"><div class="metric-icon blue">▤</div><div><div class="metric-label">Total em lotes</div><div class="metric-value">R$ 148.920,80</div><div class="metric-small">3 lotes abertos</div></div></div>
+          <div class="metric-card"><div class="metric-icon orange">◷</div><div><div class="metric-label">Aguardando gestor</div><div class="metric-value">26</div><div class="metric-small">contas pendentes</div></div></div>
+          <div class="metric-card"><div class="metric-icon red">!</div><div><div class="metric-label">Com alerta</div><div class="metric-value">5</div><div class="metric-small">precisam revisão</div></div></div>
+          <div class="metric-card"><div class="metric-icon green">✓</div><div><div class="metric-label">Pagas no mês</div><div class="metric-value">R$ 82.430,10</div><div class="metric-small">42 pagamentos</div></div></div>
+          <div class="metric-card"><div class="metric-icon purple">▦</div><div><div class="metric-label">Agendadas</div><div class="metric-value">9</div><div class="metric-small">próximos 7 dias</div></div></div>
+        </section>
+        <section class="table-card"><div class="selection-line"><strong>Últimos lotes</strong></div>${simpleTable(["Lote", "Status", "Valor", "Contas"], [["#20250523-001", "Aguardando aprovação", "R$ 48.760,25", "16"], ["#20250522-004", "Pago", "R$ 32.900,00", "9"], ["#20250521-002", "Com alerta", "R$ 67.260,55", "18"]])}</section>
+      `;
+    }
+
+    function newBatchHTML() {
+      return `
+        ${screenHeader("Novo lote", "Cadastre contas manualmente ou monte um lote a partir de arquivos.")}
+        <section class="table-card" style="padding:24px; margin-bottom:24px;">
+          <div style="display:flex; justify-content:space-between; gap:18px; align-items:flex-start; flex-wrap:wrap; margin-bottom:22px;">
+            <div>
+              <h2 style="font-size:20px; margin-bottom:6px;">Cadastrar conta no lote</h2>
+              <p class="created-by">Escolha Pix ou Boleto para mostrar os campos específicos.</p>
+            </div>
+            <button class="btn-light" onclick="clearNewBatchForm()">Limpar campos</button>
+          </div>
+
+          <div class="form-grid">
+            <label class="form-field"><span>Tipo de pagamento</span><select id="newPaymentType" onchange="renderPaymentFields()"><option value="PIX">Pix</option><option value="Boleto">Boleto</option><option value="TED">TED</option><option value="Tributo">Tributo</option></select></label>
+            <label class="form-field"><span>Favorecido / fornecedor</span><input id="newPayee" placeholder="Nome do fornecedor" /></label>
+            <label class="form-field"><span>CPF/CNPJ</span><input id="newDocument" placeholder="00.000.000/0001-00" /></label>
+            <label class="form-field"><span>Valor</span><input id="newAmount" type="number" min="0" step="0.01" placeholder="0,00" /></label>
+            <label class="form-field"><span>Vencimento</span><input id="newDueDate" type="date" /></label>
+            <label class="form-field"><span>Centro de custo</span><input id="newCostCenter" placeholder="Ex: Marketing, Operações..." /></label>
+          </div>
+
+          <div id="paymentSpecificFields" class="form-grid two"></div>
+
+          <div class="form-grid two">
+            <label class="form-field"><span>Nota fiscal</span><input id="newInvoice" placeholder="Número da NF, link do PDF ou chave de acesso" /></label>
+            <label class="form-field"><span>Observação</span><input id="newNote" placeholder="Ex: pagamento referente à campanha de maio" /></label>
+          </div>
+
+          <button class="btn-green" onclick="addManualPaymentToBatch()">Adicionar conta ao lote</button>
+          <div id="newBatchTests" class="test-result" style="display:none;"></div>
+        </section>
+
+        <section class="table-card">
+          <div class="selection-line"><strong>Contas cadastradas neste lote</strong></div>
+          ${simpleTable(["Favorecido", "Tipo", "Vencimento", "Valor", "Status", "Nota fiscal"], state.payments.slice(0, 8).map(item => [item.payee, item.type, dateBR(item.dueDate), money(item.amount), item.status, item.invoice || "—"]))}
+        </section>
+      `;
+    }
+
+    function importHTML() {
+      return `
+        ${screenHeader("Importar arquivo", "Envie planilhas, arquivos CSV ou remessas CNAB para montar um lote.")}
+        <section class="table-card" style="padding:28px;">
+          <div style="border:2px dashed var(--line); border-radius:18px; padding:46px; text-align:center; background:#fbfdff;">
+            <div style="font-size:44px; margin-bottom:12px;">⇪</div>
+            <h2 style="margin-bottom:8px;">Arraste o arquivo aqui</h2>
+            <p class="created-by" style="margin-bottom:18px;">Formatos aceitos: CSV, TXT, CNAB e XLSX</p>
+            <button class="btn-green" onclick="showToast('Importação simulada iniciada.')">Escolher arquivo</button>
+          </div>
+        </section>
+      `;
+    }
+
+    function registeredBillsHTML() {
+      return `${screenHeader("Contas cadastradas", "Todas as contas registradas antes de entrar em um lote.")}<section class="table-card">${simpleTable(["Favorecido", "Tipo", "Vencimento", "Valor", "Status"], state.payments.map(item => [item.payee, item.type, dateBR(item.dueDate), money(item.amount), item.status]))}</section>`;
+    }
+
+    function batchesHTML() {
+      return `${screenHeader("Lotes", "Acompanhe lotes criados, aprovados, pagos ou com alerta.")}<section class="table-card">${simpleTable(["ID do lote", "Criado por", "Contas", "Valor", "Status"], [["20250523-001", "João Silva", state.payments.length, money(sumBy(state.payments)), "Aguardando aprovação"], ["20250522-004", "Ana Costa", "9", "R$ 32.900,00", "Pago"], ["20250521-002", "Bruno Lima", "18", "R$ 67.260,55", "Com alerta"]])}</section>`;
+    }
+
+    function paymentsHTML() {
+      return `${screenHeader("Pagamentos", "Veja o que já foi liberado, agendado ou pago.")}<section class="table-card">${simpleTable(["Favorecido", "Forma", "Valor", "Data", "Status"], [["Comercial Beta Ltda", "PIX", "R$ 1.980,00", "24/05/2025", "Liberado"], ["Fornecedor Gama S.A.", "Boleto", "R$ 1.860,00", "30/05/2025", "Agendado"], ["Cloud Prime Brasil", "PIX", "R$ 8.900,00", "01/06/2025", "Pago"]])}</section>`;
+    }
+
+    function historyHTML() {
+      return `${screenHeader("Histórico", "Registro das ações feitas no sistema.")}<section class="table-card">${simpleTable(["Data", "Usuário", "Ação", "Detalhe"], [["23/05/2025 10:32", "João Silva", "Criou lote", "#20250523-001"], ["23/05/2025 10:41", "Sistema", "Validou contas", "2 alertas encontrados"], ["23/05/2025 11:05", "Gestor", "Liberou pagamento", "6 contas selecionadas"]])}</section>`;
+    }
+
+    function payeesHTML() {
+      return `${screenHeader("Favorecidos", "Lista de fornecedores, prestadores e beneficiários salvos.")}<section class="table-card">${simpleTable(["Nome", "Documento", "Tipo favorito", "Último pagamento"], [["Fornecedora Alfa Ltda", "12.345.678/0001-90", "Boleto", "R$ 2.150,00"], ["Comercial Beta Ltda", "98.765.432/0001-10", "PIX", "R$ 1.980,00"], ["Serviços Delta Ltda", "33.444.555/0001-99", "PIX", "R$ 4.750,00"]])}</section>`;
+    }
+
+    function reportsHTML() {
+      return `
+        ${screenHeader("Relatórios", "Resumo financeiro por período, status e tipo de pagamento.")}
+        <section class="metrics">
+          <div class="metric-card"><div class="metric-icon blue">▥</div><div><div class="metric-label">Pagamentos no mês</div><div class="metric-value">R$ 82.430,10</div><div class="metric-small">+12% vs mês anterior</div></div></div>
+          <div class="metric-card"><div class="metric-icon green">✓</div><div><div class="metric-label">Taxa de aprovação</div><div class="metric-value">91%</div><div class="metric-small">lotes sem alerta</div></div></div>
+          <div class="metric-card"><div class="metric-icon orange">◷</div><div><div class="metric-label">Tempo médio</div><div class="metric-value">2h 14m</div><div class="metric-small">até liberação</div></div></div>
+        </section>
+      `;
+    }
+
+    function settingsHTML() {
+      return `${screenHeader("Configurações", "Ajuste permissões, limites e preferências da conta.")}<section class="table-card">${simpleTable(["Configuração", "Valor", "Status"], [["Aprovador principal", "Gestor financeiro", "Ativo"], ["Permitir cadastro por equipe", "Sim", "Ativo"], ["Bloquear contas vencidas", "Sim", "Ativo"], ["Exigir validação antes de liberar", "Sim", "Ativo"]])}</section>`;
+    }
+
+    function emptyHTML(page) {
+      return `${screenHeader(page, "Área em construção.")}<section class="table-card" style="padding:24px;">Em breve.</section>`;
+    }
+
+    function openApproval(element) {
+      setActiveMenu(element);
+      document.getElementById("approvalScreen").style.display = "block";
+      document.getElementById("dynamicScreen").style.display = "none";
+      document.getElementById("bottomApproval").style.display = "grid";
+      renderTable();
+    }
+
+    function openMenu(page, element) {
+      setActiveMenu(element);
+      document.getElementById("approvalScreen").style.display = "none";
+      document.getElementById("dynamicScreen").style.display = "block";
+      document.getElementById("bottomApproval").style.display = "none";
+
+      const screens = {
+        "Dashboard": dashboardHTML,
+        "Novo lote": newBatchHTML,
+        "Importar arquivo": importHTML,
+        "Contas cadastradas": registeredBillsHTML,
+        "Lotes": batchesHTML,
+        "Pagamentos": paymentsHTML,
+        "Histórico": historyHTML,
+        "Favorecidos": payeesHTML,
+        "Relatórios": reportsHTML,
+        "Configurações": settingsHTML
+      };
+
+      const builder = screens[page] || (() => emptyHTML(page));
+      document.getElementById("dynamicScreen").innerHTML = builder();
+
+      if (page === "Novo lote") {
+        renderPaymentFields();
+        runSmokeTests();
+      }
+    }
+
+    function renderPaymentFields() {
+      const type = document.getElementById("newPaymentType")?.value || "PIX";
+      const area = document.getElementById("paymentSpecificFields");
+      if (!area) return;
+
+      const fields = {
+        PIX: `
+          <label class="form-field"><span>Chave Pix</span><input id="newPaymentDetail" placeholder="CPF, CNPJ, e-mail, telefone ou chave aleatória" /></label>
+          <label class="form-field"><span>Dados do fornecedor</span><input id="newSupplierData" placeholder="Banco, contato ou dados internos do fornecedor" /></label>
+        `,
+        Boleto: `
+          <label class="form-field"><span>Código de barras / linha digitável</span><input id="newPaymentDetail" placeholder="Digite ou cole o código do boleto" /></label>
+          <label class="form-field"><span>Cedente</span><input id="newSupplierData" placeholder="Nome do cedente do boleto" /></label>
+        `,
+        TED: `
+          <label class="form-field"><span>Dados bancários</span><input id="newPaymentDetail" placeholder="Banco, agência, conta e tipo de conta" /></label>
+          <label class="form-field"><span>Dados do fornecedor</span><input id="newSupplierData" placeholder="Contato ou referência interna" /></label>
+        `,
+        Tributo: `
+          <label class="form-field"><span>Código da guia</span><input id="newPaymentDetail" placeholder="DARF, GPS, DAE ou código de arrecadação" /></label>
+          <label class="form-field"><span>Órgão / cedente</span><input id="newSupplierData" placeholder="Receita Federal, Prefeitura, Estado..." /></label>
+        `
+      };
+
+      area.innerHTML = fields[type] || fields.PIX;
+    }
+
+    function addManualPaymentToBatch() {
+      const type = document.getElementById("newPaymentType")?.value;
+      const payee = document.getElementById("newPayee")?.value.trim();
+      const documentNumber = document.getElementById("newDocument")?.value.trim();
+      const amount = Number(document.getElementById("newAmount")?.value || 0);
+      const dueDate = document.getElementById("newDueDate")?.value;
+      const costCenter = document.getElementById("newCostCenter")?.value.trim();
+      const paymentDetail = document.getElementById("newPaymentDetail")?.value.trim();
+      const supplierData = document.getElementById("newSupplierData")?.value.trim();
+      const invoice = document.getElementById("newInvoice")?.value.trim();
+      const note = document.getElementById("newNote")?.value.trim();
+
+      if (!type || !payee || !documentNumber || !amount || !dueDate || !paymentDetail || !supplierData || !invoice) {
+        showToast("Preencha os dados obrigatórios da conta.");
+        return;
+      }
+
+      state.payments.unshift({
+        id: Date.now(),
+        selected: true,
+        payee,
+        document: documentNumber,
+        type,
+        details: type === "Boleto" ? `${paymentDetail} | Cedente: ${supplierData}` : `${paymentDetail} | ${supplierData}`,
+        dueDate,
+        amount,
+        status: "Pendente",
+        situation: "—",
+        invoice,
+        costCenter,
+        note
+      });
+
+      showToast("Conta adicionada ao novo lote.");
+      const navItem = Array.from(document.querySelectorAll(".nav-item")).find(item => item.textContent.includes("Novo lote"));
+      openMenu("Novo lote", navItem);
+    }
+
+    function clearNewBatchForm() {
+      ["newPayee", "newDocument", "newAmount", "newDueDate", "newCostCenter", "newInvoice", "newNote", "newPaymentDetail", "newSupplierData"].forEach(id => {
+        const field = document.getElementById(id);
+        if (field) field.value = "";
+      });
+    }
+
+    function filteredPayments() {
+      const search = document.getElementById("searchInput")?.value.toLowerCase().trim() || "";
+      return state.payments.filter(item => {
+        const matchesFilter = state.currentFilter === "todos" || item.status === state.currentFilter;
+        const matchesSearch = !search || item.payee.toLowerCase().includes(search) || item.document.toLowerCase().includes(search) || String(item.amount).includes(search.replace(",", "."));
+        return matchesFilter && matchesSearch;
+      });
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById("paymentsTable");
+      if (!tbody) return;
+
+      const data = filteredPayments();
+      tbody.innerHTML = data.map(item => `
+        <tr>
+          <td><input type="checkbox" ${item.selected ? "checked" : ""} onchange="toggleItem(${item.id}, this.checked)" /></td>
+          <td class="payee"><strong>${item.payee}</strong><span>${item.document}</span></td>
+          <td><span class="type">${typeIcon(item.type)} ${item.type}</span></td>
+          <td class="details">${item.details}</td>
+          <td class="${item.situation === "Vencido" ? "danger" : ""}">${dateBR(item.dueDate)}</td>
+          <td><strong>${money(item.amount)}</strong></td>
+          <td><span class="badge ${badgeClass(item.status)}">${item.status === "Alerta" ? "Com alerta" : item.status}</span></td>
+          <td class="${item.situation === "Vencido" ? "danger" : "muted"}">${item.situation}</td>
+          <td class="dots">...</td>
+        </tr>
+      `).join("");
+
+      updateStats();
+    }
+
+    function setFilter(filter) {
+      state.currentFilter = filter;
+      document.querySelectorAll(".tab").forEach(tab => tab.classList.toggle("active", tab.dataset.filter === filter));
+      renderTable();
+    }
+
+    function toggleItem(id, checked) {
+      const payment = state.payments.find(item => item.id === id);
+      if (payment) payment.selected = checked;
+      updateStats();
+    }
+
+    function toggleAll(checked) {
+      filteredPayments().forEach(item => item.selected = checked);
+      renderTable();
+    }
+
+    function updateStats() {
+      const totalAmount = sumBy(state.payments);
+      const approved = state.payments.filter(item => item.status === "Aprovado");
+      const pending = state.payments.filter(item => item.status === "Pendente");
+      const alert = state.payments.filter(item => item.status === "Alerta");
+      const scheduled = state.payments.filter(item => item.status === "Agendado");
+      const selected = state.payments.filter(item => item.selected);
+
+      setText("infoTotalBills", state.payments.length);
+      setText("infoTotalAmount", money(totalAmount));
+      setText("metricTotalAmount", money(totalAmount));
+      setText("metricTotalBills", `${state.payments.length} contas`);
+      setText("metricApprovedCount", approved.length);
+      setText("metricApprovedAmount", money(sumBy(approved)));
+      setText("metricPendingCount", pending.length);
+      setText("metricPendingAmount", money(sumBy(pending)));
+      setText("metricAlertCount", alert.length);
+      setText("metricAlertAmount", money(sumBy(alert)));
+      setText("metricScheduledCount", scheduled.length);
+      setText("metricScheduledAmount", money(sumBy(scheduled)));
+      setText("tabAll", state.payments.length);
+      setText("tabPending", pending.length);
+      setText("tabApproved", approved.length);
+      setText("tabAlert", alert.length);
+      setText("selectableCount", filteredPayments().length);
+      setText("selectedCount", selected.length);
+      setText("selectedAmount", money(sumBy(selected)));
+      setText("bottomApprovedCount", selected.filter(item => item.status === "Aprovado").length);
+      setText("bottomApprovedAmount", money(sumBy(selected.filter(item => item.status === "Aprovado"))));
+      setText("bottomPendingCount", selected.filter(item => item.status === "Pendente").length);
+      setText("bottomPendingAmount", money(sumBy(selected.filter(item => item.status === "Pendente"))));
+      setText("bottomAlertCount", selected.filter(item => item.status === "Alerta").length);
+      setText("bottomAlertAmount", money(sumBy(selected.filter(item => item.status === "Alerta"))));
+    }
+
+    function setText(id, value) {
+      const element = document.getElementById(id);
+      if (element) element.textContent = value;
+    }
+
+    function releaseSelected() {
+      const selected = state.payments.filter(item => item.selected);
+      const selectedWithAlert = selected.filter(item => item.status === "Alerta");
+
+      if (!selected.length) {
+        showToast("Selecione ao menos uma conta para liberar.");
+        return;
+      }
+
+      if (selectedWithAlert.length) {
+        showToast("Existem contas com alerta. Desmarque ou corrija antes de liberar.");
+        return;
+      }
+
+      selected.forEach(item => {
+        if (item.status === "Pendente") {
+          item.status = "Aprovado";
+          item.situation = "Liberado";
+        }
+      });
+
+      renderTable();
+      showToast("Contas selecionadas liberadas pelo gestor.");
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      if (!toast) return;
+      toast.textContent = message;
+      toast.classList.add("show");
+      setTimeout(() => toast.classList.remove("show"), 2600);
+    }
+
+    function runSmokeTests() {
+      const results = [];
+      results.push(typeof window.openMenu === "function" ? "✅ openMenu disponível" : "❌ openMenu não encontrado");
+      results.push(typeof window.openApproval === "function" ? "✅ openApproval disponível" : "❌ openApproval não encontrado");
+      results.push(document.getElementById("newPaymentType") ? "✅ Novo lote abriu corretamente" : "❌ Formulário de novo lote não abriu");
+      results.push(document.getElementById("paymentSpecificFields")?.textContent.includes("Chave Pix") ? "✅ Campos Pix carregados" : "❌ Campos Pix não carregaram");
+
+      const testBox = document.getElementById("newBatchTests");
+      if (testBox) {
+        testBox.style.display = "block";
+        testBox.innerHTML = `<strong>Testes rápidos:</strong><br>${results.join("<br>")}`;
+      }
+      console.log("PayLote smoke tests", results);
+    }
+
+    window.openMenu = openMenu;
+    window.openApproval = openApproval;
+    window.setFilter = setFilter;
+    window.renderTable = renderTable;
+    window.toggleItem = toggleItem;
+    window.toggleAll = toggleAll;
+    window.releaseSelected = releaseSelected;
+    window.renderPaymentFields = renderPaymentFields;
+    window.addManualPaymentToBatch = addManualPaymentToBatch;
+    window.clearNewBatchForm = clearNewBatchForm;
+    window.showToast = showToast;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderTable();
+      console.log("PayLote iniciado. openMenu:", typeof window.openMenu);
+    });
+  </script>
+</body>
+</html>
