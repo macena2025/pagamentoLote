@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PayLote | Pagamento de Contas em Lote</title>
+  <title>PayLote | Gestão de Pagamentos em Lote</title>
   <style>
     :root {
       --bg: #f6f8fc;
@@ -642,17 +642,6 @@
       transform: translateY(0);
     }
 
-    .test-result {
-      margin-top: 16px;
-      padding: 14px 16px;
-      border-radius: 12px;
-      background: #f8fafc;
-      border: 1px solid var(--line);
-      color: #334155;
-      font-size: 13px;
-      line-height: 1.7;
-    }
-
     @media (max-width: 1200px) {
       .metrics { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .page-head { grid-template-columns: 1fr; }
@@ -932,7 +921,6 @@
           </div>
 
           <button class="btn-green" onclick="addManualPaymentToBatch()">Adicionar conta ao lote</button>
-          <div id="newBatchTests" class="test-result" style="display:none;"></div>
         </section>
 
         <section class="table-card">
@@ -1027,7 +1015,6 @@
 
       if (page === "Novo lote") {
         renderPaymentFields();
-        runSmokeTests();
       }
     }
 
@@ -1224,21 +1211,6 @@
       setTimeout(() => toast.classList.remove("show"), 2600);
     }
 
-    function runSmokeTests() {
-      const results = [];
-      results.push(typeof window.openMenu === "function" ? "✅ openMenu disponível" : "❌ openMenu não encontrado");
-      results.push(typeof window.openApproval === "function" ? "✅ openApproval disponível" : "❌ openApproval não encontrado");
-      results.push(document.getElementById("newPaymentType") ? "✅ Novo lote abriu corretamente" : "❌ Formulário de novo lote não abriu");
-      results.push(document.getElementById("paymentSpecificFields")?.textContent.includes("Chave Pix") ? "✅ Campos Pix carregados" : "❌ Campos Pix não carregaram");
-
-      const testBox = document.getElementById("newBatchTests");
-      if (testBox) {
-        testBox.style.display = "block";
-        testBox.innerHTML = `<strong>Testes rápidos:</strong><br>${results.join("<br>")}`;
-      }
-      console.log("PayLote smoke tests", results);
-    }
-
     window.openMenu = openMenu;
     window.openApproval = openApproval;
     window.setFilter = setFilter;
@@ -1253,7 +1225,6 @@
 
     document.addEventListener("DOMContentLoaded", () => {
       renderTable();
-      console.log("PayLote iniciado. openMenu:", typeof window.openMenu);
     });
   </script>
 </body>
